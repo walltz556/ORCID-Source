@@ -8,7 +8,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.orcid.core.locale.LocaleManager;
-import org.orcid.core.manager.InternalSSOManager;
 import org.orcid.core.manager.StatusManager;
 import org.orcid.core.manager.v3.ProfileEntityManager;
 import org.slf4j.Logger;
@@ -31,10 +30,7 @@ public class StatusController {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatusController.class);
 
     @Resource
-    private LocaleManager localeManager;
-    
-    @Resource
-    private InternalSSOManager internalSSOManager;
+    private LocaleManager localeManager;      
     
     @Resource(name = "profileEntityManagerV3")
     private ProfileEntityManager profileEntityManager;

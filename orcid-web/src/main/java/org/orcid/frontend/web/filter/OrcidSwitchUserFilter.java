@@ -52,10 +52,7 @@ public class OrcidSwitchUserFilter extends SwitchUserFilter {
     private SourceManager sourceManager;
 
     @Resource
-    private LocaleManager localeManager;
-
-    @Resource
-    private InternalSSOManager internalSSOManager;
+    private LocaleManager localeManager;    
     
     @Resource
     private ProfileDao profileDao;
@@ -73,24 +70,6 @@ public class OrcidSwitchUserFilter extends SwitchUserFilter {
     }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        if (internalSSOManager.enableCookie()) {
-            HttpServletRequest request = (HttpServletRequest) req;
-            HttpServletResponse response = (HttpServletResponse) res;
-            if (requiresSwitchUser(request)) {
-                // Add the cookie for the delegate user
-                String targetUserOrcid = request.getParameter(SPRING_SECURITY_SWITCH_USERNAME_KEY);
-                if (!PojoUtil.isEmpty(targetUserOrcid)) {
-                    // If it is switching back to the original user
-                    if (isSwitchingBack(request)) {
-                        internalSSOManager.getAndUpdateCookie(targetUserOrcid, request, response);
-                    } else {
-                        // If it is switching user
-                        internalSSOManager.writeCookie(targetUserOrcid, request, response);
-                    }
-                }
-            }
-        }
-
         super.doFilter(req, res, chain);
     }
 
