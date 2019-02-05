@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.orcid.core.locale.LocaleManager;
-import org.orcid.core.manager.OrcidProfileManager;
 import org.orcid.core.manager.OrgDisambiguatedManager;
 import org.orcid.core.oauth.OrcidProfileUserDetails;
 import org.orcid.core.orgs.OrgDisambiguatedSourceType;
@@ -73,20 +72,11 @@ public class FundingsControllerTest extends BaseControllerTest {
     FundingsController fundingController;
 
     @Resource
-    protected OrcidProfileManager orcidProfileManager;
-    
-    @Resource
     private OrcidUserDetailsService orcidUserDetailsService;
 
     @Override
     protected Authentication getAuthentication() {
-        orcidProfile = orcidProfileManager.retrieveOrcidProfile("4444-4444-4444-4443");
-        List<OrcidWebRole> roles = Arrays.asList(OrcidWebRole.ROLE_USER);
-        OrcidProfileUserDetails details = new OrcidProfileUserDetails(orcidProfile.retrieveOrcidPath(),
-                orcidProfile.getOrcidBio().getContactDetails().retrievePrimaryEmail().getValue(), null, roles);
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("4444-4444-4444-4443", details.getPassword(), roles);
-        auth.setDetails(details);
-        return auth;
+        return getAuthentication4443();
     }
 
     @Before

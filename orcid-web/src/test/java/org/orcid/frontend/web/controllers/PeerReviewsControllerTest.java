@@ -18,11 +18,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.orcid.core.manager.OrcidProfileManager;
 import org.orcid.core.manager.OrgDisambiguatedManager;
 import org.orcid.core.orgs.OrgDisambiguatedSourceType;
 import org.orcid.core.security.OrcidUserDetailsService;
 import org.orcid.frontend.web.util.BaseControllerTest;
+import org.orcid.persistence.dao.ProfileDao;
+import org.orcid.persistence.jpa.entities.IndexingStatus;
 import org.orcid.pojo.OrgDisambiguated;
 import org.orcid.pojo.grouping.PeerReviewGroup;
 import org.orcid.test.OrcidJUnit4ClassRunner;
@@ -42,20 +43,20 @@ public class PeerReviewsControllerTest extends BaseControllerTest {
             "/data/OrgAffiliationEntityData.xml", "/data/PeerReviewEntityData.xml", "/data/GroupIdRecordEntityData.xml", "/data/RecordNameEntityData.xml");
 
     @Resource
-    protected OrcidProfileManager orcidProfileManager;
-
-    @Resource
     protected PeerReviewsController peerReviewsController;
     
     @Resource
     private OrcidUserDetailsService orcidUserDetailsService;
 
+    @Resource
+    private ProfileDao profileDao;
+    
     @Mock
     private HttpServletRequest servletRequest;
 
     @Before
     public void init() {
-        orcidProfileManager.updateLastModifiedDate("4444-4444-4444-4446");
+        profileDao.updateLastModifiedDateAndIndexingStatus("4444-4444-4444-4446", IndexingStatus.DONE);
     }
 
     @BeforeClass

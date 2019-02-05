@@ -37,7 +37,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.orcid.core.manager.EncryptionManager;
-import org.orcid.core.manager.OrcidProfileManager;
 import org.orcid.core.manager.ProfileEntityCacheManager;
 import org.orcid.core.manager.RegistrationManager;
 import org.orcid.core.manager.v3.EmailManager;
@@ -106,9 +105,6 @@ public class RegistrationControllerTest extends DBUnitTest {
     private ProfileEntityManager profileEntityManager;
     
     @Mock
-    private OrcidProfileManager orcidProfileManager;
-    
-    @Mock
     private EncryptionManager encryptionManagerMock;
     
     @Mock
@@ -142,7 +138,6 @@ public class RegistrationControllerTest extends DBUnitTest {
         TargetProxyHelper.injectIntoProxy(registrationController, "registrationManager", registrationManager);        
         TargetProxyHelper.injectIntoProxy(registrationController, "emailManager", emailManager); 
         TargetProxyHelper.injectIntoProxy(registrationController, "profileEntityManager", profileEntityManager);
-        TargetProxyHelper.injectIntoProxy(registrationController, "orcidProfileManager", orcidProfileManager);
         TargetProxyHelper.injectIntoProxy(registrationController, "encryptionManager", encryptionManagerMock);
         TargetProxyHelper.injectIntoProxy(registrationController, "emailManagerReadOnly", emailManagerReadOnlyMock);
         TargetProxyHelper.injectIntoProxy(registrationController, "profileEntityCacheManager", profileEntityCacheManagerMock); 

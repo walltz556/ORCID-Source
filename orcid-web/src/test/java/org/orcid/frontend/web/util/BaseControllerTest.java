@@ -1,6 +1,7 @@
 package org.orcid.frontend.web.util;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
@@ -87,6 +88,15 @@ public class BaseControllerTest extends DBUnitTest {
         }
         return (T) proxy; // expected to be cglib proxy then, which is simply a
         // specialized class
+    }
+    
+    protected Authentication getAuthentication4443() {
+        List<OrcidWebRole> roles = Arrays.asList(OrcidWebRole.ROLE_USER);
+        OrcidProfileUserDetails details = new OrcidProfileUserDetails("4444-4444-4444-4443",
+                "peter@sellers.com", null, roles);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("4444-4444-4444-4443", details.getPassword(), roles);
+        auth.setDetails(details);
+        return auth;
     }
 
 }

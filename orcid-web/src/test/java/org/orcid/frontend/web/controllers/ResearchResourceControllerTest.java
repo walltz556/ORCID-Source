@@ -25,12 +25,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.orcid.core.manager.OrcidProfileManager;
 import org.orcid.core.manager.v3.ResearchResourceManager;
 import org.orcid.frontend.web.pagination.Page;
 import org.orcid.frontend.web.pagination.ResearchResourcePaginator;
 import org.orcid.frontend.web.util.BaseControllerTest;
 import org.orcid.jaxb.model.v3.rc2.common.Visibility;
+import org.orcid.persistence.dao.ProfileDao;
+import org.orcid.persistence.jpa.entities.IndexingStatus;
 import org.orcid.pojo.ResearchResourceGroupPojo;
 import org.orcid.test.OrcidJUnit4ClassRunner;
 import org.springframework.test.context.ContextConfiguration;
@@ -55,18 +56,18 @@ public class ResearchResourceControllerTest extends BaseControllerTest {
     @Resource(name = "researchResourceManagerV3")
     private ResearchResourceManager researchResourceManager;
 
-    @Resource
-    protected OrcidProfileManager orcidProfileManager;
-
     @Captor
     private ArgumentCaptor<List<Long>> idsCaptor;
 
     @Mock
     private HttpServletRequest servletRequest;
 
+    @Resource
+    private ProfileDao profileDao;
+    
     @Before
     public void init() {
-        orcidProfileManager.updateLastModifiedDate("4444-4444-4444-4446");
+        profileDao.updateLastModifiedDateAndIndexingStatus("4444-4444-4444-4446", IndexingStatus.DONE);
         assertNotNull(controller);
     }
 
