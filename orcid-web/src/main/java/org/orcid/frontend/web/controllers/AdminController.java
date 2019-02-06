@@ -21,6 +21,7 @@ import org.orcid.core.manager.ProfileEntityCacheManager;
 import org.orcid.core.manager.v3.NotificationManager;
 import org.orcid.core.manager.v3.ProfileEntityManager;
 import org.orcid.core.manager.v3.read_only.EmailManagerReadOnly;
+import org.orcid.core.manager.v3.read_only.ProfileEntityManagerReadOnly;
 import org.orcid.jaxb.model.v3.rc2.record.Email;
 import org.orcid.password.constants.OrcidPasswordConstants;
 import org.orcid.persistence.jpa.entities.ProfileEntity;
@@ -55,6 +56,9 @@ public class AdminController extends BaseController {
     @Resource(name = "profileEntityManagerV3")
     ProfileEntityManager profileEntityManager;
 
+    @Resource(name = "profileEntityManagerReadOnlyV3")
+    ProfileEntityManagerReadOnly profileEntityManagerReadOnly;
+    
     @Resource(name = "notificationManagerV3")
     NotificationManager notificationManager;
 
@@ -282,7 +286,7 @@ public class AdminController extends BaseController {
             tempObj.setEmail(entry.getKey());
             if (!profileEntityManager.isProfileClaimed(entry.getValue())) {
                 tempObj.setStatus("Unclaimed");
-            } else if (orcidProfileManager.isLocked(entry.getValue())) {
+            } else if (profileEntityManagerReadOnly.isLocked(entry.getValue())) {
                 tempObj.setStatus("Locked");
             } else if (profileEntityManager.isDeactivated(entry.getValue())) {
                 tempObj.setStatus("Deactivated");
