@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -35,7 +33,6 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.orcid.core.constants.OrcidOauth2Constants;
 import org.orcid.core.locale.LocaleManager;
 import org.orcid.core.manager.InternalSSOManager;
-import org.orcid.core.manager.OrcidProfileManager;
 import org.orcid.core.manager.SecurityQuestionManager;
 import org.orcid.core.manager.impl.OrcidUrlManager;
 import org.orcid.core.manager.impl.StatisticsCacheManager;
@@ -51,8 +48,6 @@ import org.orcid.frontend.web.forms.LoginForm;
 import org.orcid.frontend.web.forms.validate.OrcidUrlValidator;
 import org.orcid.frontend.web.forms.validate.RedirectUriValidator;
 import org.orcid.frontend.web.util.CommonPasswords;
-import org.orcid.jaxb.model.message.Email;
-import org.orcid.jaxb.model.message.OrcidProfile;
 import org.orcid.password.constants.OrcidPasswordConstants;
 import org.orcid.persistence.constants.SendEmailFrequency;
 import org.orcid.persistence.constants.SiteConstants;
@@ -122,10 +117,7 @@ public class BaseController {
     private String cdnConfigFile;
 
     @Resource
-    protected LocaleManager localeManager;
-
-    @Resource
-    protected OrcidProfileManager orcidProfileManager;
+    protected LocaleManager localeManager;    
 
     @Resource(name = "emailManagerV3")
     protected EmailManager emailManager;
@@ -325,15 +317,10 @@ public class BaseController {
         if (userDetails == null) {
             return true;
         }
-        OrcidProfile orcidProfile = getEffectiveProfile();
-        if (orcidProfile == null) {
+        
+        String orcidId = emailManager.findOrcidIdByEmail(decryptedEmail);
+        if (orcidId != null && orcidId.equalsIgnoreCase(getEffectiveUserOrcid())) {
             return true;
-        }
-        List<Email> emails = orcidProfile.getOrcidBio().getContactDetails().getEmail();
-        for (Email email : emails) {
-            if (decryptedEmail.equalsIgnoreCase(email.getValue())) {
-                return true;
-            }
         }
         return false;
     }
@@ -500,19 +487,13 @@ public class BaseController {
         if (currentUser == null) {
             return false;
         }
-        boolean match = false;
-        for (Email cuEmail : getEffectiveProfile().getOrcidBio().getContactDetails().getEmail()) {
-            if (cuEmail.getValue() != null && cuEmail.getValue().equalsIgnoreCase(email))
-                match = true;
+        String orcidId = emailManager.findOrcidIdByEmail(email);
+        if (orcidId != null && orcidId.equalsIgnoreCase(getEffectiveUserOrcid())) {
+            return true;
         }
-        return match;
+        return false;
     }
-
-    public OrcidProfile getEffectiveProfile() {
-        String effectiveOrcid = getEffectiveUserOrcid();
-        return effectiveOrcid == null ? null : orcidProfileManager.retrieveOrcidProfile(effectiveOrcid);
-    }
-
+    
     public String getMessage(String messageCode, Object... messageParams) {
         return localeManager.resolveMessage(messageCode, messageParams);
     }
@@ -776,7 +757,7 @@ public class BaseController {
         if (PojoUtil.isEmpty(orcid)) {
             return false;
         }
-        return orcidProfileManager.isLocked(orcid);
+        return profileEntityManager.isLocked(orcid);
     }
 
     protected String calculateRedirectUrl(HttpServletRequest request, HttpServletResponse response) {

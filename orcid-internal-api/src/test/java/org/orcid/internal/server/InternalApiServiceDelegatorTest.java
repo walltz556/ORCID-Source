@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.orcid.core.manager.OrcidProfileManager;
+import org.orcid.core.manager.v3.ProfileEntityManager;
 import org.orcid.core.utils.SecurityContextTestUtils;
 import org.orcid.internal.server.delegator.InternalApiServiceDelegator;
 import org.orcid.internal.util.LastModifiedResponse;
@@ -36,8 +36,8 @@ public class InternalApiServiceDelegatorTest extends DBUnitTest {
     @Resource
     private InternalApiServiceDelegator internalApiServiceDelegator;
     
-    @Resource
-    OrcidProfileManager orcidProfileManager;
+    @Resource(name = "profileEntityManagerV3")
+    private ProfileEntityManager profileEntityManager;
     
     @Before
     public void before() throws Exception {
@@ -62,7 +62,7 @@ public class InternalApiServiceDelegatorTest extends DBUnitTest {
         LastModifiedResponse obj = (LastModifiedResponse) response.getEntity();
         assertNotNull(obj);
         assertEquals(USER_ORCID, obj.getOrcid());
-        assertEquals(orcidProfileManager.retrieveLastModifiedDate(USER_ORCID).toString(), obj.getLastModified());
+        assertEquals(profileEntityManager.getLastModifiedDate(USER_ORCID).toString(), obj.getLastModified());
     }
     
     @Test
