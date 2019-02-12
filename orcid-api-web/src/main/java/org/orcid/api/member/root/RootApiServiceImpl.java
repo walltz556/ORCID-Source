@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.orcid.api.member.root.delegator.RootApiServiceDelegator;
 import org.orcid.core.oauth.OrcidClientCredentialEndPointDelegator;
 
+@Path("/")
 public class RootApiServiceImpl {
     
     @Context
