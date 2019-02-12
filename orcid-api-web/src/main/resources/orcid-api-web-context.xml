@@ -9,7 +9,7 @@
 
     <import resource="classpath*:orcid-core-context.xml"/>
 
-    <context:component-scan base-package="org.orcid.api.t2, org.orcid.api.common, org.orcid.core.security"/>
+    <context:component-scan base-package="org.orcid.api.member, org.orcid.api.common, org.orcid.core.security"/>
     <aop:aspectj-autoproxy />
      
     <bean id="beanConfig" class="io.swagger.jaxrs.config.BeanConfig">
@@ -24,6 +24,8 @@
     
     <bean id="swaggerSerializers" class="io.swagger.jaxrs.listing.SwaggerSerializers" scope="singleton"/>    
     <bean id="apiListingResource" class="org.orcid.api.swagger.MemberSwaggerResource"/>
+    
+    <bean id="rootApiServiceImpl" class="org.orcid.api.member.root.RootApiServiceImpl" />
      
     <!--  Notifications -->
     <bean id="notificationsApiServiceDelegator" class="org.orcid.api.notificationsV2.server.delegator.impl.NotificationsApiServiceDelegatorImpl" />
@@ -61,6 +63,8 @@
     <bean id="notificationsApiServiceDelegatorV3Rc2" class="org.orcid.api.notificationsV3.server.delegator.impl.NotificationsApiServiceVersionedDelegatorImpl">
         <property name="externalVersion" value="3.0_rc2" />
     </bean>
+
+	<bean id="rootApiServiceDelegator" class="org.orcid.api.member.root.delegator.impl.RootApiServiceDelegatorImpl" />
 
     <bean id="memberV2ApiServiceDelegator" class="org.orcid.api.memberV2.server.delegator.impl.MemberV2ApiServiceDelegatorImpl" />
     

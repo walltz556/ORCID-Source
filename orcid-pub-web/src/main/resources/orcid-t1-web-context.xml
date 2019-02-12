@@ -12,7 +12,7 @@
     <import resource="orcid-core-context.xml"/>
     <import resource="statistics-core-context.xml"/>
     
-    <context:component-scan base-package="org.orcid.api.t1, org.orcid.api.common, org.orcid.core.security"/>
+    <context:component-scan base-package="org.orcid.api.root, org.orcid.api.common, org.orcid.core.security"/>
     <aop:aspectj-autoproxy />
     <task:annotation-driven />
 
@@ -122,5 +122,6 @@
         <property name="serviceDelegator" ref="publicV2ApiServiceDelegatorV2_1"/>
     </bean>
     
+    <bean id="rootApiServiceImpl" class="org.orcid.api.root.RootApiServiceImpl" />
     
 </beans>
