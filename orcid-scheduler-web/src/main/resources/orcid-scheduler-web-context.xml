@@ -8,9 +8,11 @@
 
     <import resource="classpath*:orcid-scheduler-beans-context.xml"/>
 
+	<bean id="processUnclaimedRecords" class="org.orcid.scheduler.tasks.ProcessUnclaimedRecordsImpl" />
+
     <task:scheduled-tasks scheduler="scheduler">   
-	    <task:scheduled ref="orcidProfileManager" method="processUnclaimedProfilesToFlagForIndexing" cron="${org.orcid.scheduler.web.processUnclaimedProfilesToFlagForIndexingCron:25 25 * * * *}"/>
-        <task:scheduled ref="orcidProfileManager" method="processUnclaimedProfilesForReminder" cron="${org.orcid.scheduler.web.processUnclaimedProfilesForReminderCron:35 35 * * * *}"/>
+	    <task:scheduled ref="processUnclaimedRecords" method="processUnclaimedProfilesToFlagForIndexing" cron="${org.orcid.scheduler.web.processUnclaimedProfilesToFlagForIndexingCron:25 25 * * * *}"/>
+        <task:scheduled ref="processUnclaimedRecords" method="processUnclaimedProfilesForReminder" cron="${org.orcid.scheduler.web.processUnclaimedProfilesForReminderCron:35 35 * * * *}"/>
         <task:scheduled ref="webhookManager" method="processWebhooks" cron="${org.orcid.scheduler.web.processWebhooks:25 25 0-2 * * *}"/>
         <task:scheduled ref="statisticsCronJob" method="generateStatistics" cron="${org.orcid.scheduler.web.processStatisticsGeneratorManager:0 */5 * * * *}"/>
          <task:scheduled ref="memberChosenOrgDisambiguatedManager" method="refreshMemberChosenOrgs" cron="${org.orcid.scheduler.web.processMemberChosenOrgs:15 15 0-2 * * *}"/>
