@@ -2,6 +2,7 @@ package org.orcid.api.member.root.delegator.impl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +13,13 @@ import javax.ws.rs.core.UriInfo;
 import org.orcid.api.member.root.delegator.RootApiServiceDelegator;
 import org.orcid.core.exception.OrcidBadRequestException;
 import org.orcid.core.exception.OrcidClientNotFoundException;
+import org.orcid.core.exception.OrcidForbiddenException;
 import org.orcid.core.exception.OrcidNotFoundException;
+import org.orcid.core.exception.OrcidWebhookNotFoundException;
+import org.orcid.core.locale.LocaleManager;
+import org.orcid.core.manager.ProfileEntityCacheManager;
+import org.orcid.core.manager.WebhookManager;
+import org.orcid.core.manager.v3.ClientDetailsManager;
 import org.orcid.core.manager.v3.OrcidSecurityManager;
 import org.orcid.jaxb.model.message.ScopePathType;
 import org.orcid.persistence.jpa.entities.ClientDetailsEntity;
@@ -21,11 +28,25 @@ import org.orcid.persistence.jpa.entities.WebhookEntity;
 import org.orcid.persistence.jpa.entities.keys.WebhookEntityPk;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
 
 public class RootApiServiceDelegatorImpl implements RootApiServiceDelegator {
 
     @Resource(name = "orcidSecurityManagerV3")
     private OrcidSecurityManager orcidSecurityManager;
+    
+    @Resource(name = "clientDetailsManagerV3")
+    private ClientDetailsManager clientDetailsManager;
+
+    @Resource
+    private WebhookManager webhookManager;
+    
+    @Resource
+    private LocaleManager localeManager;
+
+    @Resource(name = "profileEntityCacheManager")
+    private ProfileEntityCacheManager profileEntityCacheManager;
     
     /**
      * Register a new webhook to the profile. As with all calls, if the message

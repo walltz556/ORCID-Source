@@ -1,29 +1,23 @@
 package org.orcid.api.member.root;
 
 import static org.orcid.api.common.T2OrcidApiService.OAUTH_TOKEN;
-import static org.orcid.core.api.OrcidApiConstants.VND_ORCID_XML;
-import static org.orcid.core.api.OrcidApiConstants.ORCID_XML;
-import static org.orcid.core.api.OrcidApiConstants.WEBHOOKS_PATH;
-import static org.orcid.core.api.OrcidApiConstants.VND_ORCID_JSON;
 import static org.orcid.core.api.OrcidApiConstants.ORCID_JSON;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
+import static org.orcid.core.api.OrcidApiConstants.ORCID_XML;
+import static org.orcid.core.api.OrcidApiConstants.VND_ORCID_JSON;
+import static org.orcid.core.api.OrcidApiConstants.VND_ORCID_XML;
+import static org.orcid.core.api.OrcidApiConstants.WEBHOOKS_PATH;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -36,12 +30,14 @@ import org.orcid.core.oauth.OrcidClientCredentialEndPointDelegator;
 
 public class RootApiServiceImpl {
     
+    @Context
+    private UriInfo uriInfo;
+    
     @Resource
     private OrcidClientCredentialEndPointDelegator orcidClientCredentialEndPointDelegator;
     
     @Resource
     private RootApiServiceDelegator rootApiServiceDelegator;
-    
     
     /**
      * 
