@@ -29,6 +29,7 @@ export class WorksMergeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     mergeCount: any;
     mergeSubmit: boolean;
+    showWorksMergeError: boolean;
     worksToMerge: Array<any>;
     externalIdsPresent: boolean;
     groupingSuggestion: any;
@@ -39,11 +40,23 @@ export class WorksMergeComponent implements AfterViewInit, OnDestroy, OnInit {
     ) {
         this.mergeSubmit = false;
         this.groupingSuggestion = false;
+        this.showWorksMergeError = false;
     }
 
     cancelEdit(): void {
         this.mergeSubmit = false;
         this.modalService.notifyOther({action:'close', moduleId: 'modalWorksMerge'});
+    };
+
+    mergeConfirm(): void {
+        if(this.worksToMerge.length > 20){
+            this.worksService.notifyOther({worksToMerge:this.worksToMerge});       
+            this.worksService.notifyOther({mergeCount:this.mergeCount});
+            this.modalService.notifyOther({action:'close', moduleId: 'modalWorksMerge'});   
+            this.modalService.notifyOther({action:'open', moduleId: 'modalWorksMergeWarning'});   
+        } else {
+            this.merge();
+        }
     };
 
     merge(): void {
@@ -65,6 +78,7 @@ export class WorksMergeComponent implements AfterViewInit, OnDestroy, OnInit {
                 this.modalService.notifyOther({action:'close', moduleId: 'modalWorksMerge'});
             },
             error => {
+                this.showWorksMergeError = true;
                 console.log('error calling mergeWorks', error);
             } 
         );
