@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -25,12 +26,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
+import org.orcid.api.member.root.delegator.RootApiServiceDelegator;
+import org.orcid.core.oauth.OrcidClientCredentialEndPointDelegator;
 
 public class RootApiServiceImpl {
+    
+    @Resource
+    private OrcidClientCredentialEndPointDelegator orcidClientCredentialEndPointDelegator;
+    
+    @Resource
+    private RootApiServiceDelegator rootApiServiceDelegator;
+    
+    
     /**
      * 
      * @param formParams
@@ -58,7 +70,7 @@ public class RootApiServiceImpl {
     @Consumes(value = { VND_ORCID_XML, ORCID_XML, MediaType.APPLICATION_XML })
     @Path(WEBHOOKS_PATH)
     public Response registerWebhookXML(@PathParam("orcid") String orcid, @PathParam("webhook_uri") String webhookUri) {
-        return serviceDelegator.registerWebhook(uriInfo, orcid, webhookUri);
+        return rootApiServiceDelegator.registerWebhook(uriInfo, orcid, webhookUri);
     }
 
     /**
@@ -75,7 +87,7 @@ public class RootApiServiceImpl {
     @Consumes(value = { VND_ORCID_JSON, ORCID_JSON, MediaType.APPLICATION_JSON })
     @Path(WEBHOOKS_PATH)
     public Response registerWebhookJson(@PathParam("orcid") String orcid, @PathParam("webhook_uri") String webhookUri) {
-        return serviceDelegator.registerWebhook(uriInfo, orcid, webhookUri);
+        return rootApiServiceDelegator.registerWebhook(uriInfo, orcid, webhookUri);
     }
 
     /**
@@ -92,7 +104,7 @@ public class RootApiServiceImpl {
     @Consumes(value = { VND_ORCID_XML, ORCID_XML, MediaType.APPLICATION_XML })
     @Path(WEBHOOKS_PATH)
     public Response unregisterWebhookXML(@PathParam("orcid") String orcid, @PathParam("webhook_uri") String webhookUri) {
-        return serviceDelegator.unregisterWebhook(uriInfo, orcid, webhookUri);
+        return rootApiServiceDelegator.unregisterWebhook(uriInfo, orcid, webhookUri);
     }
 
     /**
@@ -109,6 +121,6 @@ public class RootApiServiceImpl {
     @Consumes(value = { VND_ORCID_JSON, ORCID_JSON, MediaType.APPLICATION_JSON })
     @Path(WEBHOOKS_PATH)
     public Response unregisterWebhookJson(@PathParam("orcid") String orcid, @PathParam("webhook_uri") String webhookUri) {
-        return serviceDelegator.unregisterWebhook(uriInfo, orcid, webhookUri);
+        return rootApiServiceDelegator.unregisterWebhook(uriInfo, orcid, webhookUri);
     }
 }
