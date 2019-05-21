@@ -10,6 +10,7 @@ import org.orcid.jaxb.model.record_v2.ExternalID;
 import org.orcid.jaxb.model.record_v2.Relationship;
 import org.orcid.pojo.ajaxForm.PojoUtil;
 
+import ma.glasnost.orika.MappingContext;
 import ma.glasnost.orika.converter.BidirectionalConverter;
 import ma.glasnost.orika.metadata.Type;
 
@@ -18,10 +19,10 @@ public class JSONPeerReviewWorkExternalIdentifierConverterV2 extends Bidirection
     private ExternalIdentifierTypeConverter conv = new ExternalIdentifierTypeConverter();
 
     @Override
-    public String convertTo(ExternalID source, Type<String> destinationType) {
+    public String convertTo(ExternalID source, Type<String> destinationType, MappingContext context) {
         JSONWorkExternalIdentifier jsonWorkExternalIdentifier = new JSONWorkExternalIdentifier();
         if (source.getType() != null) {
-            jsonWorkExternalIdentifier.setWorkExternalIdentifierType(conv.convertTo(source.getType(), null));
+            jsonWorkExternalIdentifier.setWorkExternalIdentifierType(conv.convertTo(source.getType(), null, context));
         }
         if (source.getUrl() != null) {
             jsonWorkExternalIdentifier.setUrl(new JSONUrl(source.getUrl().getValue()));
@@ -30,19 +31,19 @@ public class JSONPeerReviewWorkExternalIdentifierConverterV2 extends Bidirection
             jsonWorkExternalIdentifier.setWorkExternalIdentifierId(new WorkExternalIdentifierId(source.getValue()));
         }
         if (source.getRelationship() != null) {
-            jsonWorkExternalIdentifier.setRelationship(conv.convertTo(source.getRelationship().value(), null));
+            jsonWorkExternalIdentifier.setRelationship(conv.convertTo(source.getRelationship().value(), null, context));
         }
         return JsonUtils.convertToJsonString(jsonWorkExternalIdentifier);
     }
 
     @Override
-    public ExternalID convertFrom(String source, Type<ExternalID> destinationType) {
+    public ExternalID convertFrom(String source, Type<ExternalID> destinationType, MappingContext context) {
         JSONWorkExternalIdentifier workExternalIdentifier = JsonUtils.readObjectFromJsonString(source, JSONWorkExternalIdentifier.class);
         ExternalID id = new ExternalID();
         if (workExternalIdentifier.getWorkExternalIdentifierType() == null) {
             id.setType(WorkExternalIdentifierType.OTHER_ID.value());
         } else {
-            id.setType(conv.convertFrom(workExternalIdentifier.getWorkExternalIdentifierType(), null));
+            id.setType(conv.convertFrom(workExternalIdentifier.getWorkExternalIdentifierType(), null, context));
         }
         if (workExternalIdentifier.getWorkExternalIdentifierId() != null) {
             id.setValue(workExternalIdentifier.getWorkExternalIdentifierId().content);
@@ -51,7 +52,7 @@ public class JSONPeerReviewWorkExternalIdentifierConverterV2 extends Bidirection
             id.setUrl(new Url(workExternalIdentifier.getUrl().getValue()));
         }
         if (workExternalIdentifier.getRelationship() != null) {
-            id.setRelationship(Relationship.fromValue(conv.convertFrom(workExternalIdentifier.getRelationship(), null)));
+            id.setRelationship(Relationship.fromValue(conv.convertFrom(workExternalIdentifier.getRelationship(), null, context)));
         }
         return id;
     }

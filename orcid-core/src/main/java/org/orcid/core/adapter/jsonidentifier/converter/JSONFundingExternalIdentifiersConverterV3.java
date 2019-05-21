@@ -11,6 +11,7 @@ import org.orcid.jaxb.model.v3.release.record.ExternalID;
 import org.orcid.jaxb.model.v3.release.record.ExternalIDs;
 import org.orcid.pojo.ajaxForm.PojoUtil;
 
+import ma.glasnost.orika.MappingContext;
 import ma.glasnost.orika.converter.BidirectionalConverter;
 import ma.glasnost.orika.metadata.Type;
 
@@ -19,12 +20,12 @@ public class JSONFundingExternalIdentifiersConverterV3 extends BidirectionalConv
     private ExternalIdentifierTypeConverter conv = new ExternalIdentifierTypeConverter();
 
     @Override
-    public String convertTo(ExternalIDs source, Type<String> destinationType) {
+    public String convertTo(ExternalIDs source, Type<String> destinationType, MappingContext context) {
         JSONFundingExternalIdentifiers jsonFundingExternalIdentifiers = new JSONFundingExternalIdentifiers();
         for (ExternalID externalID : source.getExternalIdentifier()) {
             JSONExternalIdentifier jsonExternalIdentifier = new JSONExternalIdentifier();
             if (externalID.getType() != null) {
-                jsonExternalIdentifier.setType(conv.convertTo(externalID.getType(), null));
+                jsonExternalIdentifier.setType(conv.convertTo(externalID.getType(), null, context));
             }
 
             if (externalID.getUrl() != null) {
@@ -36,7 +37,7 @@ public class JSONFundingExternalIdentifiersConverterV3 extends BidirectionalConv
             }
 
             if (externalID.getRelationship() != null) {
-                jsonExternalIdentifier.setRelationship(conv.convertTo(externalID.getRelationship().value(), null));
+                jsonExternalIdentifier.setRelationship(conv.convertTo(externalID.getRelationship().value(), null, context));
             }
             jsonFundingExternalIdentifiers.getFundingExternalIdentifier().add(jsonExternalIdentifier);
         }
@@ -44,7 +45,7 @@ public class JSONFundingExternalIdentifiersConverterV3 extends BidirectionalConv
     }
 
     @Override
-    public ExternalIDs convertFrom(String source, Type<ExternalIDs> destinationType) {
+    public ExternalIDs convertFrom(String source, Type<ExternalIDs> destinationType, MappingContext context) {
         JSONFundingExternalIdentifiers fundingExternalIdentifiers = JsonUtils.readObjectFromJsonString(source, JSONFundingExternalIdentifiers.class);
         ExternalIDs externalIDs = new ExternalIDs();
         for (JSONExternalIdentifier externalIdentifier : fundingExternalIdentifiers.getFundingExternalIdentifier()) {
@@ -64,7 +65,7 @@ public class JSONFundingExternalIdentifiersConverterV3 extends BidirectionalConv
             }
 
             if (externalIdentifier.getRelationship() != null) {
-                id.setRelationship(Relationship.fromValue(conv.convertFrom(externalIdentifier.getRelationship(), null)));
+                id.setRelationship(Relationship.fromValue(conv.convertFrom(externalIdentifier.getRelationship(), null, context)));
             }
             externalIDs.getExternalIdentifier().add(id);
         }

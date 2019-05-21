@@ -227,7 +227,7 @@ public class VersionConverterImplV2_0_rc1ToV2_0_rc2 implements V2VersionConverte
     public static class FundingExternalIdentifiersToExternalIDConverter extends BidirectionalConverter<FundingExternalIdentifiers,ExternalIDs> {
 
         @Override
-        public ExternalIDs convertTo(FundingExternalIdentifiers source, Type<ExternalIDs> destinationType) {
+        public ExternalIDs convertTo(FundingExternalIdentifiers source, Type<ExternalIDs> destinationType, MappingContext arg2) {
             ExternalIDs ids = new ExternalIDs();
             for (FundingExternalIdentifier identifier : source.getExternalIdentifier()){
                 ExternalID id = new ExternalID();
@@ -245,7 +245,7 @@ public class VersionConverterImplV2_0_rc1ToV2_0_rc2 implements V2VersionConverte
         }
 
         @Override
-        public FundingExternalIdentifiers convertFrom(ExternalIDs source, Type<FundingExternalIdentifiers> destinationType) {
+        public FundingExternalIdentifiers convertFrom(ExternalIDs source, Type<FundingExternalIdentifiers> destinationType, MappingContext arg2) {
             FundingExternalIdentifiers identifiers = new FundingExternalIdentifiers();
             for (ExternalID id : source.getExternalIdentifier()){
                 FundingExternalIdentifier identifier = new FundingExternalIdentifier();
@@ -267,7 +267,7 @@ public class VersionConverterImplV2_0_rc1ToV2_0_rc2 implements V2VersionConverte
     public static class WorkExternalIdentifiersToExternalIDConverter extends BidirectionalConverter<WorkExternalIdentifiers,ExternalIDs> {
 
         @Override
-        public ExternalIDs convertTo(WorkExternalIdentifiers source, Type<ExternalIDs> destinationType) {
+        public ExternalIDs convertTo(WorkExternalIdentifiers source, Type<ExternalIDs> destinationType, MappingContext arg2) {
             ExternalIDs ids = new ExternalIDs();
             for (WorkExternalIdentifier identifier : source.getExternalIdentifier()){
                 ExternalID id = new ExternalID();
@@ -285,7 +285,7 @@ public class VersionConverterImplV2_0_rc1ToV2_0_rc2 implements V2VersionConverte
         }
 
         @Override
-        public WorkExternalIdentifiers convertFrom(ExternalIDs source, Type<WorkExternalIdentifiers> destinationType) {
+        public WorkExternalIdentifiers convertFrom(ExternalIDs source, Type<WorkExternalIdentifiers> destinationType, MappingContext arg2) {
             WorkExternalIdentifiers identifiers = new WorkExternalIdentifiers();
             for (ExternalID id : source.getExternalIdentifier()){
                 WorkExternalIdentifier identifier = new WorkExternalIdentifier();
@@ -307,7 +307,7 @@ public class VersionConverterImplV2_0_rc1ToV2_0_rc2 implements V2VersionConverte
     public static class WorkExternalIdentifierToExternalIDConverter extends BidirectionalConverter<WorkExternalIdentifier,ExternalID> {
 
         @Override
-        public ExternalID convertTo(WorkExternalIdentifier identifier, Type<ExternalID> destinationType) {
+        public ExternalID convertTo(WorkExternalIdentifier identifier, Type<ExternalID> destinationType, MappingContext arg2) {
             ExternalID id = new ExternalID();
             id.setType(identifier.getWorkExternalIdentifierType().value());
             id.setValue(identifier.getWorkExternalIdentifierId().getContent());
@@ -321,7 +321,7 @@ public class VersionConverterImplV2_0_rc1ToV2_0_rc2 implements V2VersionConverte
         }
 
         @Override
-        public WorkExternalIdentifier convertFrom(ExternalID id, Type<WorkExternalIdentifier> destinationType) {
+        public WorkExternalIdentifier convertFrom(ExternalID id, Type<WorkExternalIdentifier> destinationType, MappingContext arg2) {
             WorkExternalIdentifier identifier = new WorkExternalIdentifier();
             identifier.setWorkExternalIdentifierType(org.orcid.jaxb.model.record_rc1.WorkExternalIdentifierType.fromValue(id.getType()));
             identifier.setWorkExternalIdentifierId(new WorkExternalIdentifierId(id.getValue()));

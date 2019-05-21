@@ -29,13 +29,13 @@ public class JSONFundingExternalIdentifiersConverterV2Test {
         Funding funding = getFunding();
         assertEquals(
                 "{\"fundingExternalIdentifier\":[{\"type\":\"GRANT_NUMBER\",\"value\":\"funding:external-identifier-value\",\"url\":{\"value\":\"http://tempuri.org\"},\"relationship\":\"SELF\"},{\"type\":\"GRANT_NUMBER\",\"value\":\"funding:external-identifier-value2\",\"url\":{\"value\":\"http://tempuri.org/2\"},\"relationship\":\"SELF\"}]}",
-                converter.convertTo(funding.getExternalIdentifiers(), null));
+                converter.convertTo(funding.getExternalIdentifiers(), null, null));
     }
 
     @Test
     public void testConvertFrom() {
         ProfileFundingEntity funding = getProfileFundingEntity();
-        ExternalIDs externalIDs = converter.convertFrom(funding.getExternalIdentifiersJson(), null);
+        ExternalIDs externalIDs = converter.convertFrom(funding.getExternalIdentifiersJson(), null, null);
         assertNotNull(externalIDs);
         assertEquals(2, externalIDs.getExternalIdentifier().size());
         

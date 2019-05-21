@@ -16,6 +16,7 @@ import org.orcid.jaxb.model.v3.release.record.ExternalID;
 import org.orcid.jaxb.model.v3.release.record.ExternalIDs;
 import org.orcid.pojo.ajaxForm.PojoUtil;
 
+import ma.glasnost.orika.MappingContext;
 import ma.glasnost.orika.converter.BidirectionalConverter;
 import ma.glasnost.orika.metadata.Type;
 
@@ -33,12 +34,12 @@ public class JSONExternalIdentifiersConverterV3 extends BidirectionalConverter<E
     }
 
     @Override
-    public String convertTo(ExternalIDs source, Type<String> destinationType) {
+    public String convertTo(ExternalIDs source, Type<String> destinationType, MappingContext context) {
         JSONExternalIdentifiers jsonExternalIdentifiers = new JSONExternalIdentifiers();
         for (ExternalID externalID : source.getExternalIdentifier()) {
             JSONExternalIdentifier jsonExternalIdentifier = new JSONExternalIdentifier();
             if (externalID.getType() != null) {
-                jsonExternalIdentifier.setType(conv.convertTo(externalID.getType(), null));
+                jsonExternalIdentifier.setType(conv.convertTo(externalID.getType(), null, context));
             }
 
             if (externalID.getUrl() != null) {
@@ -50,7 +51,7 @@ public class JSONExternalIdentifiersConverterV3 extends BidirectionalConverter<E
             }
 
             if (externalID.getRelationship() != null) {
-                jsonExternalIdentifier.setRelationship(conv.convertTo(externalID.getRelationship().value(), null));
+                jsonExternalIdentifier.setRelationship(conv.convertTo(externalID.getRelationship().value(), null, context));
             }
             jsonExternalIdentifiers.getExternalIdentifier().add(jsonExternalIdentifier);
         }
@@ -58,7 +59,7 @@ public class JSONExternalIdentifiersConverterV3 extends BidirectionalConverter<E
     }
 
     @Override
-    public ExternalIDs convertFrom(String source, Type<ExternalIDs> destinationType) {
+    public ExternalIDs convertFrom(String source, Type<ExternalIDs> destinationType, MappingContext context) {
         JSONExternalIdentifiers externalIdentifiers = JsonUtils.readObjectFromJsonString(source, JSONExternalIdentifiers.class);
         ExternalIDs externalIDs = new ExternalIDs();
         for (JSONExternalIdentifier externalIdentifier : externalIdentifiers.getExternalIdentifier()) {
@@ -85,7 +86,7 @@ public class JSONExternalIdentifiersConverterV3 extends BidirectionalConverter<E
             }
             
             if (externalIdentifier.getRelationship() != null) {
-                id.setRelationship(Relationship.fromValue(conv.convertFrom(externalIdentifier.getRelationship(), null)));
+                id.setRelationship(Relationship.fromValue(conv.convertFrom(externalIdentifier.getRelationship(), null, context)));
             }
             externalIDs.getExternalIdentifier().add(id);
         }

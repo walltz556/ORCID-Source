@@ -32,13 +32,13 @@ public class JSONPeerReviewWorkExternalIdentifierConverterV2Test {
         PeerReview peerReview = getPeerReview();
         assertEquals(
                 "{\"relationship\":\"SELF\",\"url\":{\"value\":\"http://orcid.org\"},\"workExternalIdentifierType\":\"DOI\",\"workExternalIdentifierId\":{\"content\":\"peer-review:subject-external-identifier-id\"}}",
-                converter.convertTo(peerReview.getSubjectExternalIdentifier(), null));
+                converter.convertTo(peerReview.getSubjectExternalIdentifier(), null, null));
     }
 
     @Test
     public void testConvertFrom() {
         PeerReviewEntity peerReview = getPeerReviewEntity();
-        ExternalID externalID = converter.convertFrom(peerReview.getSubjectExternalIdentifiersJson(), null);
+        ExternalID externalID = converter.convertFrom(peerReview.getSubjectExternalIdentifiersJson(), null, null);
         assertNotNull(externalID);
         
         assertEquals("source-work-id", externalID.getType());

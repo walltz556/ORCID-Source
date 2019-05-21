@@ -10,16 +10,16 @@ public final class ExternalIdentifierTypeConverterTest {
 
     @Test
     public void testConvertTo() {
-        assertEquals("SOMETHING", converter.convertTo("something", null));
-        assertEquals("GRANT_NUMBER", converter.convertTo("grant_number", null));
-        assertEquals("ERM_WHAT_ELSE", converter.convertTo("erm-what-else", null));
+        assertEquals("SOMETHING", converter.convertTo("something", null, null));
+        assertEquals("GRANT_NUMBER", converter.convertTo("grant_number", null, null));
+        assertEquals("ERM_WHAT_ELSE", converter.convertTo("erm-what-else", null, null));
     }
 
     @Test
     public void testConvertFrom() {
-        assertEquals("something", converter.convertFrom("SOMETHING", null));
-        assertEquals("grant_number", converter.convertFrom("GRANT_NUMBER", null));
-        assertEquals("erm-what-else", converter.convertFrom("ERM_WHAT_ELSE", null));
+        assertEquals("something", converter.convertFrom("SOMETHING", null, null));
+        assertEquals("grant_number", converter.convertFrom("GRANT_NUMBER", null, null));
+        assertEquals("erm-what-else", converter.convertFrom("ERM_WHAT_ELSE", null, null));
     }
 
 }

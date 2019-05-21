@@ -267,7 +267,7 @@ public class SalesForceMapperFacadeFactory implements FactoryBean<MapperFacade> 
 
     private class StringConverter extends CustomConverter<Object, String> {
         @Override
-        public String convert(Object source, Type<? extends String> destinationType) {
+        public String convert(Object source, Type<? extends String> destinationType, MappingContext arg2) {
             if (JSONObject.NULL.equals(source)) {
                 return null;
             }
@@ -277,14 +277,14 @@ public class SalesForceMapperFacadeFactory implements FactoryBean<MapperFacade> 
 
     private class URLConverter extends CustomConverter<URL, Object> {
         @Override
-        public Object convert(URL source, Type<? extends Object> destinationType) {
+        public Object convert(URL source, Type<? extends Object> destinationType, MappingContext arg2) {
             return source.toString();
         }
     }
 
     private class ReverseURLConverter extends CustomConverter<Object, URL> {
         @Override
-        public URL convert(Object source, Type<? extends URL> destinationType) {
+        public URL convert(Object source, Type<? extends URL> destinationType, MappingContext arg2) {
             if (JSONObject.NULL.equals(source)) {
                 return null;
             }
@@ -302,28 +302,28 @@ public class SalesForceMapperFacadeFactory implements FactoryBean<MapperFacade> 
 
     private class ContactRoleConverter extends CustomConverter<ContactRoleType, Object> {
         @Override
-        public Object convert(ContactRoleType source, Type<? extends Object> destinationType) {
+        public Object convert(ContactRoleType source, Type<? extends Object> destinationType, MappingContext arg2) {
             return source.value();
         }
     }
 
     private class ReverseContactRoleConverter extends CustomConverter<Object, ContactRoleType> {
         @Override
-        public ContactRoleType convert(Object source, Type<? extends ContactRoleType> destinationType) {
+        public ContactRoleType convert(Object source, Type<? extends ContactRoleType> destinationType, MappingContext arg2) {
             return ContactRoleType.fromValue(source.toString());
         }
     }
 
     private class CommunityTypeConverter extends CustomConverter<CommunityType, Object> {
         @Override
-        public Object convert(CommunityType source, Type<? extends Object> destinationType) {
+        public Object convert(CommunityType source, Type<? extends Object> destinationType, MappingContext arg2) {
             return source.value();
         }
     }
 
-    private class ReverseCommunityTypeConverter extends CustomConverter<Object, CommunityType> {
+    private class ReverseCommunityTypeConverter extends CustomConverter<Object, CommunityType> {        
         @Override
-        public CommunityType convert(Object source, Type<? extends CommunityType> destinationType) {
+        public CommunityType convert(Object source, Type<? extends CommunityType> arg1, MappingContext arg2) {
             return CommunityType.fromValue(source.toString());
         }
     }

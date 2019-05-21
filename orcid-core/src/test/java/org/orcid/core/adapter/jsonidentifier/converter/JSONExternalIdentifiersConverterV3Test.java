@@ -43,12 +43,12 @@ public class JSONExternalIdentifiersConverterV3Test {
         Education education = getEducation();
         assertEquals(
                 "{\"externalIdentifier\":[{\"type\":\"GRANT_NUMBER\",\"value\":\"external-identifier-value\",\"url\":{\"value\":\"http://tempuri.org\"},\"relationship\":\"SELF\"},{\"type\":\"GRANT_NUMBER\",\"value\":\"external-identifier-value2\",\"url\":{\"value\":\"http://tempuri.org/2\"},\"relationship\":\"SELF\"}]}",
-                converter.convertTo(education.getExternalIdentifiers(), null));
+                converter.convertTo(education.getExternalIdentifiers(), null, null));
     }
 
     @Test
     public void testConvertFrom() {
-        ExternalIDs externalIDs = converter.convertFrom("{\"externalIdentifier\":[{\"type\":\"GRANT_NUMBER\",\"value\":\"external-identifier-value\",\"url\":{\"value\":\"http://tempuri.org\"},\"relationship\":\"SELF\"},{\"type\":\"GRANT_NUMBER\",\"value\":\"external-identifier-value2\",\"url\":{\"value\":\"http://tempuri.org/2\"},\"relationship\":\"SELF\"}]}", null);
+        ExternalIDs externalIDs = converter.convertFrom("{\"externalIdentifier\":[{\"type\":\"GRANT_NUMBER\",\"value\":\"external-identifier-value\",\"url\":{\"value\":\"http://tempuri.org\"},\"relationship\":\"SELF\"},{\"type\":\"GRANT_NUMBER\",\"value\":\"external-identifier-value2\",\"url\":{\"value\":\"http://tempuri.org/2\"},\"relationship\":\"SELF\"}]}", null, null);
         assertNotNull(externalIDs);
         assertEquals(2, externalIDs.getExternalIdentifier().size());
         

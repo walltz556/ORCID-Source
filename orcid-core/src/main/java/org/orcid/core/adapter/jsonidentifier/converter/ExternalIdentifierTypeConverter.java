@@ -1,5 +1,6 @@
 package org.orcid.core.adapter.jsonidentifier.converter;
 
+import ma.glasnost.orika.MappingContext;
 import ma.glasnost.orika.converter.BidirectionalConverter;
 import ma.glasnost.orika.metadata.Type;
 
@@ -15,12 +16,12 @@ import ma.glasnost.orika.metadata.Type;
 public final class ExternalIdentifierTypeConverter extends BidirectionalConverter<String, String> {
 
     @Override
-    public String convertTo(String source, Type<String> destinationType) {
+    public String convertTo(String source, Type<String> destinationType, MappingContext arg2) {
         return source.toUpperCase().replace("-", "_");
     }
 
     @Override
-    public String convertFrom(String source, Type<String> destinationType) {
+    public String convertFrom(String source, Type<String> destinationType, MappingContext arg2) {
         if (source == null)
             return null;
         // annoying hack because grant_number does it different.
