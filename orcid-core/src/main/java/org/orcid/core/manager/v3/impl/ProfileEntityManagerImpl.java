@@ -12,12 +12,12 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
-import org.orcid.core.common.manager.EmailFrequencyManager;
 import org.orcid.core.constants.RevokeReason;
 import org.orcid.core.locale.LocaleManager;
 import org.orcid.core.manager.ClientDetailsEntityCacheManager;
 import org.orcid.core.manager.EncryptionManager;
 import org.orcid.core.manager.ProfileEntityCacheManager;
+import org.orcid.core.manager.SourceNameCacheManager;
 import org.orcid.core.manager.TwoFactorAuthenticationManager;
 import org.orcid.core.manager.impl.OrcidUrlManager;
 import org.orcid.core.manager.v3.AddressManager;
@@ -40,7 +40,6 @@ import org.orcid.core.manager.v3.WorkManager;
 import org.orcid.core.manager.v3.read_only.impl.ProfileEntityManagerReadOnlyImpl;
 import org.orcid.core.oauth.OrcidOauth2TokenDetailService;
 import org.orcid.core.profile.history.ProfileHistoryEventType;
-import org.orcid.core.security.visibility.OrcidVisibilityDefaults;
 import org.orcid.jaxb.model.clientgroup.MemberType;
 import org.orcid.jaxb.model.common.AvailableLocales;
 import org.orcid.jaxb.model.common.OrcidType;
@@ -48,23 +47,27 @@ import org.orcid.jaxb.model.message.ScopePathType;
 import org.orcid.jaxb.model.v3.release.common.CreditName;
 import org.orcid.jaxb.model.v3.release.common.Visibility;
 import org.orcid.jaxb.model.v3.release.notification.amended.AmendedSection;
+import org.orcid.jaxb.model.v3.release.record.Address;
+import org.orcid.jaxb.model.v3.release.record.Addresses;
 import org.orcid.jaxb.model.v3.release.record.Biography;
 import org.orcid.jaxb.model.v3.release.record.Email;
 import org.orcid.jaxb.model.v3.release.record.Emails;
 import org.orcid.jaxb.model.v3.release.record.FamilyName;
 import org.orcid.jaxb.model.v3.release.record.GivenNames;
+import org.orcid.jaxb.model.v3.release.record.Keyword;
+import org.orcid.jaxb.model.v3.release.record.Keywords;
 import org.orcid.jaxb.model.v3.release.record.Name;
+import org.orcid.jaxb.model.v3.release.record.OtherName;
+import org.orcid.jaxb.model.v3.release.record.OtherNames;
+import org.orcid.jaxb.model.v3.release.record.PersonExternalIdentifier;
+import org.orcid.jaxb.model.v3.release.record.PersonExternalIdentifiers;
+import org.orcid.jaxb.model.v3.release.record.ResearcherUrl;
+import org.orcid.jaxb.model.v3.release.record.ResearcherUrls;
 import org.orcid.persistence.dao.UserConnectionDao;
-import org.orcid.persistence.jpa.entities.AddressEntity;
 import org.orcid.persistence.jpa.entities.ClientDetailsEntity;
-import org.orcid.persistence.jpa.entities.ExternalIdentifierEntity;
 import org.orcid.persistence.jpa.entities.IndexingStatus;
 import org.orcid.persistence.jpa.entities.OrcidOauth2TokenDetail;
-import org.orcid.persistence.jpa.entities.OtherNameEntity;
 import org.orcid.persistence.jpa.entities.ProfileEntity;
-import org.orcid.persistence.jpa.entities.ProfileKeywordEntity;
-import org.orcid.persistence.jpa.entities.RecordNameEntity;
-import org.orcid.persistence.jpa.entities.ResearcherUrlEntity;
 import org.orcid.pojo.ApplicationSummary;
 import org.orcid.pojo.ajaxForm.Claim;
 import org.orcid.pojo.ajaxForm.PojoUtil;
@@ -161,10 +164,10 @@ public class ProfileEntityManagerImpl extends ProfileEntityManagerReadOnlyImpl i
     private ProfileHistoryEventManager profileHistoryEventManager;
 
     @Resource
-    private EmailFrequencyManager emailFrequencyManager;
-
-    @Resource
     private GivenPermissionToManager givenPermissionToManager;
+    
+    @Resource
+    private SourceNameCacheManager sourceNameCacheManager;
 
     @Override
     public boolean orcidExists(String orcid) {
@@ -359,23 +362,23 @@ public class ProfileEntityManagerImpl extends ProfileEntityManagerReadOnlyImpl i
     }
 
     private String getMemberDisplayName(ProfileEntity member) {
-        RecordNameEntity recordName = member.getRecordNameEntity();
-        if (recordName == null) {
+        Name name = recordNameManager.getRecordName(member.getId());
+        if (name == null) {
             return StringUtils.EMPTY;
         }
 
         // If it is a member, return the credit name
         if (OrcidType.GROUP.name().equals(member.getOrcidType())) {
-            return recordName.getCreditName();
+            return name.getCreditName() == null ? "" : name.getCreditName().getContent();
         }
 
-        Visibility namesVisibilty = Visibility.fromValue(recordName.getVisibility());
+        Visibility namesVisibilty = name.getVisibility();
         if (Visibility.PUBLIC.equals(namesVisibilty)) {
-            if (!PojoUtil.isEmpty(recordName.getCreditName())) {
-                return recordName.getCreditName();
+            if (name.getCreditName() != null && !PojoUtil.isEmpty(name.getCreditName().getContent())) {
+                return name.getCreditName().getContent();
             } else {
-                String displayName = recordName.getGivenNames();
-                String familyName = recordName.getFamilyName();
+                String displayName = name.getGivenNames() == null ? "" : name.getGivenNames().getContent();
+                String familyName = name.getFamilyName() == null ? "" : name.getFamilyName().getContent();
                 if (StringUtils.isNotBlank(familyName)) {
                     displayName += " " + familyName;
                 }
@@ -400,24 +403,7 @@ public class ProfileEntityManagerImpl extends ProfileEntityManagerReadOnlyImpl i
 
     @Override
     public String retrivePublicDisplayName(String orcid) {
-        String publicName = "";
-        ProfileEntity profile = profileEntityCacheManager.retrieve(orcid);
-        if (profile != null) {
-            RecordNameEntity recordName = profile.getRecordNameEntity();
-            if (recordName != null) {
-                Visibility namesVisibility = (recordName.getVisibility() != null) ? Visibility.fromValue(recordName.getVisibility())
-                        : Visibility.fromValue(OrcidVisibilityDefaults.NAMES_DEFAULT.getVisibility().value());
-                if (Visibility.PUBLIC.equals(namesVisibility)) {
-                    if (!PojoUtil.isEmpty(recordName.getCreditName())) {
-                        publicName = recordName.getCreditName();
-                    } else {
-                        publicName = PojoUtil.isEmpty(recordName.getGivenNames()) ? "" : recordName.getGivenNames();
-                        publicName += PojoUtil.isEmpty(recordName.getFamilyName()) ? "" : " " + recordName.getFamilyName();
-                    }
-                }
-            }
-        }
-        return publicName;
+        return sourceNameCacheManager.retrieve(orcid);
     }
 
     @Override
@@ -435,7 +421,6 @@ public class ProfileEntityManagerImpl extends ProfileEntityManagerReadOnlyImpl i
         profile.setIndexingStatus(IndexingStatus.REINDEX);
         profile.setClaimed(true);
         profile.setCompletedDate(new Date());
-        profile.setEncryptedPassword(encryptionManager.hashForInternalUse(claim.getPassword().getValue()));
         if (locale != null) {
             profile.setLocale(locale.name());
         }
@@ -443,67 +428,66 @@ public class ProfileEntityManagerImpl extends ProfileEntityManagerReadOnlyImpl i
             profile.setActivitiesVisibilityDefault(claim.getActivitiesVisibilityDefault().getVisibility().name());
         }
 
-        // Update the visibility for every bio element to the visibility
-        // selected by the user
-        // Update the bio
-        org.orcid.jaxb.model.common_v2.Visibility defaultVisibility = org.orcid.jaxb.model.common_v2.Visibility
+        profileDao.merge(profile);
+        profileDao.flush();
+        
+        // Update the visibility for every bio element to the visibility selected by the user
+        org.orcid.jaxb.model.v3.release.common.Visibility defaultVisibility = org.orcid.jaxb.model.v3.release.common.Visibility
                 .fromValue(claim.getActivitiesVisibilityDefault().getVisibility().value());
-        if (profile.getBiographyEntity() != null) {
-            profile.getBiographyEntity().setVisibility(defaultVisibility.name());
+        
+        // Update the bio
+        if(biographyManager.exists(orcid)) {
+            Biography b = biographyManager.getBiography(orcid);
+            b.setVisibility(defaultVisibility);
+            biographyManager.updateBiography(orcid, b);
         }
-        // Update address
-        if (profile.getAddresses() != null) {
-            for (AddressEntity a : profile.getAddresses()) {
-                a.setVisibility(defaultVisibility.name());
+        
+        Addresses addresses = addressManager.getAddresses(orcid);
+        if(addresses != null) {
+            for(Address a : addresses.getAddress()) {
+                a.setVisibility(defaultVisibility);
+                addressManager.updateAddress(orcid, a.getPutCode(), a, false);
             }
         }
-
+        
         // Update the keywords
-        if (profile.getKeywords() != null) {
-            for (ProfileKeywordEntity k : profile.getKeywords()) {
-                k.setVisibility(defaultVisibility.name());
+        Keywords keywords = profileKeywordManager.getKeywords(orcid);
+        if(keywords != null) {
+            for(Keyword k : keywords.getKeywords()) {
+                k.setVisibility(defaultVisibility);
+                profileKeywordManager.updateKeyword(orcid, k.getPutCode(), k, false);
             }
-        }
+        }        
 
         // Update the other names
-        if (profile.getOtherNames() != null) {
-            for (OtherNameEntity o : profile.getOtherNames()) {
-                o.setVisibility(defaultVisibility.name());
+        OtherNames otherNames = otherNameManager.getOtherNames(orcid);
+        if(otherNames != null) {
+            for(OtherName o : otherNames.getOtherNames()) {
+                o.setVisibility(defaultVisibility);
+                otherNameManager.updateOtherName(orcid, o.getPutCode(), o, false);
             }
         }
 
         // Update the researcher urls
-        if (profile.getResearcherUrls() != null) {
-            for (ResearcherUrlEntity r : profile.getResearcherUrls()) {
-                r.setVisibility(defaultVisibility.name());
+        ResearcherUrls researcherUrls = researcherUrlManager.getResearcherUrls(orcid);
+        if(researcherUrls != null) {
+            for(ResearcherUrl r : researcherUrls.getResearcherUrls()) {
+                r.setVisibility(defaultVisibility);
+                researcherUrlManager.updateResearcherUrl(orcid, r, false);
             }
         }
 
         // Update the external identifiers
-        if (profile.getExternalIdentifiers() != null) {
-            for (ExternalIdentifierEntity e : profile.getExternalIdentifiers()) {
-                e.setVisibility(defaultVisibility.name());
+        PersonExternalIdentifiers externalIdentifiers = externalIdentifierManager.getExternalIdentifiers(orcid);
+        if(externalIdentifiers != null) {
+            for(PersonExternalIdentifier e : externalIdentifiers.getExternalIdentifiers()) {
+                e.setVisibility(defaultVisibility);
+                externalIdentifierManager.updateExternalIdentifier(orcid, e, false);
             }
         }
-        profileDao.merge(profile);
-        profileDao.flush();
-
-        if (!emailFrequencyManager.emailFrequencyExists(orcid)) {
-            if (claim.getSendOrcidNews() == null) {
-                emailFrequencyManager.createOnClaim(orcid, false);
-            } else {
-                emailFrequencyManager.createOnClaim(orcid, claim.getSendOrcidNews().getValue());
-            }
-        } else {
-            if (claim.getSendOrcidNews() == null) {
-                emailFrequencyManager.updateSendQuarterlyTips(orcid, false);
-            } else {
-                emailFrequencyManager.updateSendQuarterlyTips(orcid, claim.getSendOrcidNews().getValue());
-            }
-        }
-
+                        
         return true;
-    }
+    }    
 
     @Override
     public void updateLocale(String orcid, AvailableLocales locale) {
@@ -548,19 +532,24 @@ public class ProfileEntityManagerImpl extends ProfileEntityManagerReadOnlyImpl i
                     emailManager.clearEmailsAfterReactivation(orcid);
                 }
 
+                // Reactivate name
+                Name name = recordNameManager.getRecordName(orcid);
+                name.setGivenNames(new GivenNames(reactivation.getGivenNames().getValue()));
+                name.setFamilyName(new FamilyName(reactivation.getFamilyNames().getValue()));
+                recordNameManager.updateRecordName(orcid, name);
+                
                 // Reactivate user
                 ProfileEntity profileEntity = profileDao.find(orcid);
                 profileEntity.setDeactivationDate(null);
                 profileEntity.setClaimed(true);
                 if (reactivation != null) {
                     profileEntity.setEncryptedPassword(encryptionManager.hashForInternalUse(reactivation.getPassword().getValue()));
-                    profileEntity.setActivitiesVisibilityDefault(reactivation.getActivitiesVisibilityDefault().getVisibility().name());
-                    RecordNameEntity recordNameEntity = profileEntity.getRecordNameEntity();
-                    recordNameEntity.setGivenNames(reactivation.getGivenNames().getValue());
-                    recordNameEntity.setFamilyName(reactivation.getFamilyNames().getValue());
+                    profileEntity.setActivitiesVisibilityDefault(reactivation.getActivitiesVisibilityDefault().getVisibility().name());                                       
                 }
                 profileDao.merge(profileEntity);
+                
                 LOGGER.info("Record orcid={} successfully reactivated", orcid);
+                
                 return true;
             }
         });

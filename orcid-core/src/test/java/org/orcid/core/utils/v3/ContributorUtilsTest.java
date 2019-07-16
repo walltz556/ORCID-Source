@@ -160,7 +160,7 @@ public class ContributorUtilsTest {
             public String answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
                 RecordNameEntity e = (RecordNameEntity) args[0];
-                return (e.getProfile().getId() + "_name");
+                return (e.getOrcid() + "_name");
             }
             
         });

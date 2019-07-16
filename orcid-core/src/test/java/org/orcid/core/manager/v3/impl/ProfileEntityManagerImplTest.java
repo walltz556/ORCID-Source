@@ -21,8 +21,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.orcid.core.common.manager.EmailFrequencyManager;
+import org.orcid.core.manager.AddressManager;
 import org.orcid.core.manager.EncryptionManager;
+import org.orcid.core.manager.ExternalIdentifierManager;
+import org.orcid.core.manager.OtherNameManager;
 import org.orcid.core.manager.ProfileEntityCacheManager;
+import org.orcid.core.manager.ProfileKeywordManager;
+import org.orcid.core.manager.ResearcherUrlManager;
 import org.orcid.core.manager.v3.BiographyManager;
 import org.orcid.core.manager.v3.EmailManager;
 import org.orcid.core.manager.v3.NotificationManager;
@@ -32,15 +37,15 @@ import org.orcid.core.manager.v3.RecordNameManager;
 import org.orcid.core.oauth.OrcidOauth2TokenDetailService;
 import org.orcid.core.profile.history.ProfileHistoryEventType;
 import org.orcid.jaxb.model.common.AvailableLocales;
+import org.orcid.jaxb.model.record_v2.Address;
+import org.orcid.jaxb.model.record_v2.Keyword;
+import org.orcid.jaxb.model.record_v2.OtherName;
+import org.orcid.jaxb.model.record_v2.PersonExternalIdentifier;
+import org.orcid.jaxb.model.record_v2.ResearcherUrl;
 import org.orcid.persistence.dao.ProfileDao;
 import org.orcid.persistence.dao.UserConnectionDao;
-import org.orcid.persistence.jpa.entities.AddressEntity;
-import org.orcid.persistence.jpa.entities.ExternalIdentifierEntity;
 import org.orcid.persistence.jpa.entities.OrcidOauth2TokenDetail;
-import org.orcid.persistence.jpa.entities.OtherNameEntity;
 import org.orcid.persistence.jpa.entities.ProfileEntity;
-import org.orcid.persistence.jpa.entities.ProfileKeywordEntity;
-import org.orcid.persistence.jpa.entities.ResearcherUrlEntity;
 import org.orcid.persistence.jpa.entities.UserConnectionStatus;
 import org.orcid.persistence.jpa.entities.UserconnectionEntity;
 import org.orcid.persistence.jpa.entities.UserconnectionPK;
@@ -88,6 +93,21 @@ public class ProfileEntityManagerImplTest extends DBUnitTest {
     @Resource(name = "notificationManagerV3")
     private NotificationManager notificationManager;
     
+    @Resource(name = "addressManagerV3")
+    private AddressManager addressManager;
+    
+    @Resource(name = "externalIdentifierManagerV3")
+    private ExternalIdentifierManager externalIdentifierManager;
+    
+    @Resource(name = "otherNamesManagerV3")
+    private OtherNameManager otherNamesManager;
+    
+    @Resource(name = "profileKeywordManagerV3")
+    private ProfileKeywordManager profileKeywordManager;
+    
+    @Resource(name = "researcherUrlManagerV3")
+    private ResearcherUrlManager researcherUrlManager;
+    
     @Mock
     private EmailFrequencyManager emailFrequencyManager;
     
@@ -113,10 +133,6 @@ public class ProfileEntityManagerImplTest extends DBUnitTest {
         String harrysOrcid = "4444-4444-4444-4444";
         ProfileEntity profileEntity = profileEntityCacheManager.retrieve(harrysOrcid);
         assertNotNull(profileEntity);
-        if(profileEntity.getRecordNameEntity() != null) {
-            assertEquals("Harry", profileEntity.getRecordNameEntity().getGivenNames());
-            assertEquals("Secombe", profileEntity.getRecordNameEntity().getFamilyName());
-        } 
         assertEquals(harrysOrcid, profileEntity.getId());
     }
 
@@ -207,6 +223,7 @@ public class ProfileEntityManagerImplTest extends DBUnitTest {
     @Test  
     @Transactional
     public void testClaimChangingVisibility() {
+        String orcid = "0000-0000-0000-0001";
         Claim claim = new Claim();
         claim.setActivitiesVisibilityDefault(org.orcid.pojo.ajaxForm.Visibility.valueOf(org.orcid.jaxb.model.common_v2.Visibility.PRIVATE));
         claim.setPassword(Text.valueOf("passwordTest1"));
@@ -220,36 +237,31 @@ public class ProfileEntityManagerImplTest extends DBUnitTest {
         assertTrue(profileEntityManager.claimProfileAndUpdatePreferences("0000-0000-0000-0001", "public_0000-0000-0000-0001@test.orcid.org", AvailableLocales.EN, claim));
         ProfileEntity profile = profileEntityManager.findByOrcid("0000-0000-0000-0001");
         assertNotNull(profile);
-        assertNotNull(profile.getBiographyEntity());
-        assertEquals(org.orcid.jaxb.model.common_v2.Visibility.PRIVATE.name(), profile.getBiographyEntity().getVisibility());
-        assertNotNull(profile.getAddresses());
-        assertEquals(3, profile.getAddresses().size());
-        for(AddressEntity a : profile.getAddresses()) {
+        assertEquals(org.orcid.jaxb.model.common_v2.Visibility.PRIVATE.name(), biographyManager.getBiography(orcid).getVisibility().name());         
+        assertEquals(3, addressManager.getAddresses(orcid).getAddress().size());
+        for(Address a : addressManager.getAddresses(orcid).getAddress()) {
             assertEquals(org.orcid.jaxb.model.common_v2.Visibility.PRIVATE.name(), a.getVisibility());
         }
         
-        assertNotNull(profile.getExternalIdentifiers());
-        assertEquals(3, profile.getExternalIdentifiers().size());
-        for(ExternalIdentifierEntity e : profile.getExternalIdentifiers()) {
+        assertEquals(3, externalIdentifierManager.getExternalIdentifiers(orcid).getExternalIdentifiers().size());
+        for(PersonExternalIdentifier e : externalIdentifierManager.getExternalIdentifiers(orcid).getExternalIdentifiers()) {
             assertEquals(org.orcid.jaxb.model.common_v2.Visibility.PRIVATE.name(), e.getVisibility());
         }
-        assertNotNull(profile.getKeywords());
-        assertEquals(3, profile.getKeywords().size());
-        for(ProfileKeywordEntity k : profile.getKeywords()) {
+        
+        assertEquals(3, profileKeywordManager.getKeywords(orcid).getKeywords().size());
+        for(Keyword k : profileKeywordManager.getKeywords(orcid).getKeywords()) {
             assertEquals(org.orcid.jaxb.model.common_v2.Visibility.PRIVATE.name(), k.getVisibility());
         }
         
-        assertNotNull(profile.getOtherNames());
-        assertEquals(3, profile.getOtherNames().size());
-        for(OtherNameEntity o : profile.getOtherNames()) {
+        assertEquals(3, otherNamesManager.getOtherNames(orcid).getOtherNames().size());
+        for(OtherName o : otherNamesManager.getOtherNames(orcid).getOtherNames()) {
             assertEquals(org.orcid.jaxb.model.common_v2.Visibility.PRIVATE.name(), o.getVisibility());
         }
         
-        assertNotNull(profile.getResearcherUrls());
-        assertEquals(3, profile.getResearcherUrls().size());
-        for(ResearcherUrlEntity r : profile.getResearcherUrls()) {
+        assertEquals(3, researcherUrlManager.getResearcherUrls(orcid).getResearcherUrls().size());
+        for(ResearcherUrl r : researcherUrlManager.getResearcherUrls(orcid).getResearcherUrls()) {
             assertEquals(org.orcid.jaxb.model.common_v2.Visibility.PRIVATE.name(), r.getVisibility());
-        }        
+        }       
     }
     
     @Test

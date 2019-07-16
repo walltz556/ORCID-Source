@@ -15,18 +15,19 @@ import org.apache.commons.lang.StringUtils;
 import org.orcid.core.constants.OrcidOauth2Constants;
 import org.orcid.core.manager.ClientDetailsEntityCacheManager;
 import org.orcid.core.manager.ProfileEntityCacheManager;
+import org.orcid.core.manager.v3.read_only.RecordNameManagerReadOnly;
 import org.orcid.core.oauth.service.OrcidAuthorizationEndpoint;
 import org.orcid.core.oauth.service.OrcidOAuth2RequestValidator;
 import org.orcid.frontend.spring.OrcidWebAuthenticationDetails;
 import org.orcid.jaxb.model.clientgroup.ClientType;
 import org.orcid.jaxb.model.message.ScopePathType;
+import org.orcid.jaxb.model.v3.release.record.Name;
 import org.orcid.persistence.jpa.entities.ClientDetailsEntity;
 import org.orcid.persistence.jpa.entities.ProfileEntity;
-import org.orcid.utils.OrcidStringUtils;
-import org.orcid.persistence.jpa.entities.RecordNameEntity;
 import org.orcid.pojo.ajaxForm.PojoUtil;
 import org.orcid.pojo.ajaxForm.RequestInfoForm;
 import org.orcid.pojo.ajaxForm.ScopeInfoForm;
+import org.orcid.utils.OrcidStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.NoSuchMessageException;
@@ -68,6 +69,9 @@ public class OauthControllerBase extends BaseController {
 
     @Resource
     protected OrcidAuthorizationEndpoint authorizationEndpoint;
+    
+    @Resource(name = "recordNameManagerReadOnlyV3")
+    private RecordNameManagerReadOnly recordNameManager;
     
     public AuthenticationManager getAuthenticationManager() {
         return authenticationManager;
@@ -208,14 +212,15 @@ public class OauthControllerBase extends BaseController {
             ProfileEntity profile = profileEntityCacheManager.retrieve(loggedUserOrcid);
             String creditName = "";
             
-            RecordNameEntity recordName = profile.getRecordNameEntity();
-            if(recordName != null) {
-                if (!PojoUtil.isEmpty(profile.getRecordNameEntity().getCreditName())) {
-                    creditName = profile.getRecordNameEntity().getCreditName();
+            Name name = recordNameManager.getRecordName(loggedUserOrcid);
+            
+            if (name != null) {
+                if (name.getCreditName() != null && !PojoUtil.isEmpty(name.getCreditName().getContent())) {
+                    creditName = name.getCreditName().getContent();
                 } else {
-                	    creditName = PojoUtil.isEmpty(profile.getRecordNameEntity().getGivenNames()) ? "": profile.getRecordNameEntity().getGivenNames();
-                	    creditName += PojoUtil.isEmpty(profile.getRecordNameEntity().getFamilyName()) ? "": " " + profile.getRecordNameEntity().getFamilyName();
-                	    creditName = creditName.trim();
+                    creditName = (name.getGivenNames() == null || PojoUtil.isEmpty(name.getGivenNames().getContent())) ? "" : name.getGivenNames().getContent();
+                    creditName += (name.getFamilyName() == null || PojoUtil.isEmpty(name.getFamilyName().getContent())) ? "" : " " + name.getFamilyName().getContent();
+                    creditName = creditName.trim();
                 }
             } 
                                     
@@ -262,10 +267,10 @@ public class OauthControllerBase extends BaseController {
         // If client type is null it means it is a public client
         if (ClientType.PUBLIC_CLIENT.equals(clientDetails.getClientType())) {
             memberName = PUBLIC_MEMBER_NAME;
-        } else if (!PojoUtil.isEmpty(clientDetails.getGroupProfileId())) {
-            ProfileEntity groupProfile = profileEntityCacheManager.retrieve(clientDetails.getGroupProfileId());
-            if(groupProfile.getRecordNameEntity() != null) {
-                memberName = groupProfile.getRecordNameEntity().getCreditName();
+        } else if (!PojoUtil.isEmpty(clientDetails.getGroupProfileId())) {            
+            Name name = recordNameManager.getRecordName(clientDetails.getGroupProfileId());
+            if(name != null) {
+                memberName = name.getCreditName() == null ? "" : name.getCreditName().getContent();
             } 
         }
         // If the group name is empty, use the same as the client

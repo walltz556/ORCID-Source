@@ -66,7 +66,7 @@ public class LoginController extends OauthControllerBase {
     @Resource
     protected OrcidAuthorizationEndpoint authorizationEndpoint;
 
-    @Resource(name = "recordNameManagerV3")
+    @Resource(name = "recordNameManagerReadOnlyV3")
     private RecordNameManagerReadOnly recordNameManager;
 
     @Resource

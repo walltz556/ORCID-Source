@@ -16,7 +16,6 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.tuple.Pair;
 import org.orcid.persistence.aop.ExcludeFromProfileLastModifiedUpdate;
 import org.orcid.persistence.dao.ProfileDao;
-import org.orcid.persistence.jpa.entities.BaseEntity;
 import org.orcid.persistence.jpa.entities.GivenPermissionToEntity;
 import org.orcid.persistence.jpa.entities.IndexingStatus;
 import org.orcid.persistence.jpa.entities.OrcidGrantedAuthority;
@@ -25,9 +24,7 @@ import org.orcid.persistence.jpa.entities.ProfileEventEntity;
 import org.orcid.persistence.jpa.entities.ProfileEventType;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ProfileDaoImpl extends GenericDaoImpl<ProfileEntity, String> implements ProfileDao {
-
-    private static final String PUBLIC_VISIBILITY = "PUBLIC";
+public class ProfileDaoImpl extends GenericDaoImpl<ProfileEntity, String> implements ProfileDao {    
 
     private static final String PRIVATE_VISIBILITY = "PRIVATE";
     
@@ -326,28 +323,7 @@ public class ProfileDaoImpl extends GenericDaoImpl<ProfileEntity, String> implem
                 profileEntity.setGivenPermissionTo(filtered);
             }
         }
-    }
-
-    @Override
-    @Transactional
-    public void removeChildrenWithGeneratedIds(ProfileEntity profileEntity) {
-        String orcid = profileEntity.getId();
-        removeChildren(orcid, profileEntity.getResearcherUrls(), "user.id");
-        removeChildren(orcid, profileEntity.getOtherNames());
-        removeChildren(orcid, profileEntity.getGivenPermissionTo(), "giver");
-    }
-
-    private void removeChildren(String orcid, Collection<? extends BaseEntity<?>> entities) {
-        removeChildren(orcid, entities, "profile.id");
-    }
-
-    private void removeChildren(String orcid, Collection<? extends BaseEntity<?>> entities, String orcidPath) {
-        if (entities != null && !entities.isEmpty()) {
-            entityManager.createQuery("delete from " + entities.iterator().next().getClass().getName() + " where " + orcidPath + " = :orcid").setParameter("orcid", orcid)
-                    .executeUpdate();
-            entities.clear();
-        }
-    }
+    }    
 
     @Override
     public boolean hasBeenGivenPermissionTo(String giverOrcid, String receiverOrcid) {

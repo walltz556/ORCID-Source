@@ -70,13 +70,7 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
     private String orcid;
     private String orcidType;
     private String groupType;
-    private SortedSet<OtherNameEntity> otherNames;
-    private SortedSet<ResearcherUrlEntity> researcherUrls;
-    private SortedSet<ProfileKeywordEntity> keywords;
-    private Set<ExternalIdentifierEntity> externalIdentifiers;
-    private SortedSet<OrgAffiliationRelationEntity> orgAffiliationRelations;
-    private Set<EmailEntity> emails;
-    private SortedSet<ResearchResourceEntity> researchResources;
+    private Set<EmailEntity> emails;    
 
     // Security fields
     private String encryptedPassword;
@@ -106,9 +100,7 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
     private Boolean isSelectableSponsor;
     private Collection<OrcidGrantedAuthority> authorities;
     private Set<GivenPermissionToEntity> givenPermissionTo;
-    private Set<GivenPermissionByEntity> givenPermissionBy;
-    private SortedSet<ProfileFundingEntity> profileFunding;
-    private Set<AddressEntity> addresses;
+    private Set<GivenPermissionByEntity> givenPermissionBy;        
     private SortedSet<PeerReviewEntity> peerReviews;
     private String locale = DEFAULT_LOCALE;
     
@@ -131,10 +123,6 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
     private boolean reviewed = Boolean.FALSE;
 
     private String activitiesVisibilityDefault = DEFAULT_ACTIVITIES_VISIBILITY_DEFAULT;   
-    
-    private RecordNameEntity recordNameEntity;
-    
-    private BiographyEntity biographyEntity;    
     
     private String hashedOrcid;
     
@@ -362,50 +350,6 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
         this.isSelectableSponsor = isSelectableSponsor;
     }
 
-    /**
-     * @return the otherNames
-     */
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = PROFILE, orphanRemoval = true)
-    @Sort(type = SortType.NATURAL)
-    public SortedSet<OtherNameEntity> getOtherNames() {
-        return otherNames;
-    }
-
-    /**
-     * @param otherNames
-     *            the otherNames to set
-     */
-    public void setOtherNames(SortedSet<OtherNameEntity> otherNames) {
-        this.otherNames = otherNames;
-    }
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = PROFILE, orphanRemoval = true)
-    @Sort(type = SortType.NATURAL)
-    public SortedSet<ProfileKeywordEntity> getKeywords() {
-        return keywords;
-    }
-
-    public void setKeywords(SortedSet<ProfileKeywordEntity> keywords) {
-        this.keywords = keywords;
-    }
-
-    /**
-     * @return the affiliations
-     */
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = PROFILE, orphanRemoval = true)
-    @Sort(type = SortType.NATURAL)
-    public SortedSet<OrgAffiliationRelationEntity> getOrgAffiliationRelations() {
-        return orgAffiliationRelations;
-    }
-
-    /**
-     * @param affiliations
-     *            the affiliations to set
-     */
-    public void setOrgAffiliationRelations(SortedSet<OrgAffiliationRelationEntity> affiliations) {
-        this.orgAffiliationRelations = affiliations;
-    }
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = PROFILE, orphanRemoval = true)
     public Set<EmailEntity> getEmails() {
         return emails;
@@ -444,23 +388,6 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
         this.emails = emails;
     }
 
-    /**
-     * @return the externalIdentifiers
-     */
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "owner", orphanRemoval = true)
-    @Sort(type = SortType.NATURAL)
-    public Set<ExternalIdentifierEntity> getExternalIdentifiers() {
-        return externalIdentifiers;
-    }
-
-    /**
-     * @param externalIdentifiers
-     *            the externalIdentifiers to set
-     */
-    public void setExternalIdentifiers(Set<ExternalIdentifierEntity> externalIdentifiers) {
-        this.externalIdentifiers = externalIdentifiers;
-    }
-
     @OneToMany(mappedBy = "giver", cascade = CascadeType.ALL)
     public Set<GivenPermissionToEntity> getGivenPermissionTo() {
         return givenPermissionTo;
@@ -480,23 +407,6 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
     }
 
     /**
-     * @return the grants
-     */
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = PROFILE, orphanRemoval = true)
-    @Sort(type = SortType.COMPARATOR, comparator = ProfileFundingEntityDisplayIndexComparatorDesc.class)
-    public SortedSet<ProfileFundingEntity> getProfileFunding() {
-        return profileFunding;
-    }
-
-    /**
-     * @param grants
-     *            the grants to set
-     */
-    public void setProfileFunding(SortedSet<ProfileFundingEntity> funding) {
-        this.profileFunding = funding;
-    }
-
-    /**
      * @return the peer reviews
      * */
     @OneToMany(mappedBy = PROFILE, cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -511,32 +421,6 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
      * */
     public void setPeerReviews(SortedSet<PeerReviewEntity> peerReviews) {
         this.peerReviews = peerReviews;
-    }
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
-    public Set<AddressEntity> getAddresses() {
-        return addresses;
-    }
-
-    public void setAddresses(Set<AddressEntity> addresses) {
-        this.addresses = addresses;
-    }
-
-    /**
-     * @return the researcherUrls
-     */
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval = true)
-    @Sort(type = SortType.NATURAL)
-    public SortedSet<ResearcherUrlEntity> getResearcherUrls() {
-        return researcherUrls;
-    }
-
-    /**
-     * @param researcherUrls
-     *            the researcherUrls to set
-     */
-    public void setResearcherUrls(SortedSet<ResearcherUrlEntity> researcherUrls) {
-        this.researcherUrls = researcherUrls;
     }
 
     @Column(name = "encrypted_password")
@@ -876,25 +760,7 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
         String lastModifiedString = DateUtils.convertToXMLGregorianCalendar(lastModified).toXMLFormat();
         return StringUtils.join(new String[] { orcid, lastModifiedString }, "_");
     }
-
-    @OneToOne(mappedBy = "profile", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})    
-    public RecordNameEntity getRecordNameEntity() {
-        return recordNameEntity;
-    }
-
-    public void setRecordNameEntity(RecordNameEntity recordNameEntity) {
-        this.recordNameEntity = recordNameEntity;
-    }
-
-    @OneToOne(mappedBy = "profile", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})        
-    public BiographyEntity getBiographyEntity() {
-        return biographyEntity; 
-    }
-
-    public void setBiographyEntity(BiographyEntity biographyEntity) {
-        this.biographyEntity = biographyEntity;
-    }
-
+   
     @Column(name="last_login")
     public Date getLastLogin() {
         return lastLogin;
@@ -902,22 +768,5 @@ public class ProfileEntity extends BaseEntity<String> implements UserDetails, Se
 
     public void setLastLogin(Date lastLogin) {
         this.lastLogin = lastLogin;
-    }
-    
-    /**
-     * @return the peer reviews
-     * */
-    @OneToMany(mappedBy = PROFILE, cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @Sort(type = SortType.NATURAL)//TODO: ?  this seems like it might need a display id comparator.
-    public SortedSet<ResearchResourceEntity> getResearchResource() {
-        return researchResources;
-    }
-
-    /**
-     * @param peerReviews
-     *            the peer reviews set
-     * */
-    public void setResearchResource(SortedSet<ResearchResourceEntity> researchResources) {
-        this.researchResources = researchResources;
-    }
+    }    
 }

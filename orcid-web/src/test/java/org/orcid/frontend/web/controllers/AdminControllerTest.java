@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,7 +35,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.orcid.core.adapter.Jpa2JaxbAdapter;
 import org.orcid.core.admin.LockReason;
 import org.orcid.core.common.manager.EmailFrequencyManager;
 import org.orcid.core.manager.AdminManager;
@@ -116,9 +114,6 @@ public class AdminControllerTest extends BaseControllerTest {
     @Resource
     private EmailFrequencyManager emailFrequencyManager;
     
-    @Resource
-    private Jpa2JaxbAdapter jpa2JaxbAdapter;
-    
     HttpServletRequest mockRequest = mock(HttpServletRequest.class);
     
     HttpServletResponse mockResponse = mock(HttpServletResponse.class);
@@ -137,8 +132,7 @@ public class AdminControllerTest extends BaseControllerTest {
         map.put(EmailFrequencyManager.CHANGE_NOTIFICATIONS, String.valueOf(Float.MAX_VALUE));
         map.put(EmailFrequencyManager.MEMBER_UPDATE_REQUESTS, String.valueOf(Float.MAX_VALUE));
         map.put(EmailFrequencyManager.QUARTERLY_TIPS, String.valueOf(true));
-        
-        ReflectionTestUtils.setField(jpa2JaxbAdapter, "emailFrequencyManager", mockEmailFrequencyManager);
+                
         when(mockEmailFrequencyManager.getEmailFrequency(anyString())).thenReturn(map);
         
         SecurityContextHolder.getContext().setAuthentication(getAuthentication());
@@ -149,11 +143,6 @@ public class AdminControllerTest extends BaseControllerTest {
         when(mockOrcidSecurityManager.isAdmin()).thenReturn(true);
     }
 
-    @After
-    public void after() {
-        ReflectionTestUtils.setField(jpa2JaxbAdapter, "emailFrequencyManager", emailFrequencyManager);
-    }    
-    
     @AfterClass
     public static void afterClass() throws Exception {
         removeDBUnitData(Arrays.asList("/data/ClientDetailsEntityData.xml", "/data/RecordNameEntityData.xml", "/data/BiographyEntityData.xml",

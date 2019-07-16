@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -16,14 +14,14 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "biography")
-public class BiographyEntity extends BaseEntity<Long> implements ProfileAware {
+public class BiographyEntity extends BaseEntity<Long> {
     /**
      * 
      */
     private static final long serialVersionUID = -7348260374645942620L;
     private Long id;
     private String biography;
-    private ProfileEntity profile;
+    private String orcid;
     private String visibility;
     
     /**
@@ -45,19 +43,18 @@ public class BiographyEntity extends BaseEntity<Long> implements ProfileAware {
     }
 
     /**
-     * @return the profile
-     */
-    @OneToOne 
-    @JoinColumn(name = "orcid")
-    public ProfileEntity getProfile() {
-        return profile;
+     * @return the orcid
+     */ 
+    @Column(name = "orcid")
+    public String getOrcid() {
+        return orcid;
     }
 
     /**
-     * @param profile the profile to set
+     * @param orcid the profile to set
      */
-    public void setProfile(ProfileEntity profile) {
-        this.profile = profile;
+    public void setOrcid(String orcid) {
+        this.orcid = orcid;
     }
     
     @Column(name = "biography")    
